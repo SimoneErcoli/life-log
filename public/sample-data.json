@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "Life-Log",
+    "version": 1,
+    "currency": "EUR",
+    "updatedAt": "2026-04-09T08:00:00.000Z"
+  },
+  "habits": [
+    {
+      "id": "habit-walk",
+      "name": "Camminata",
+      "color": "#247ba0"
+    },
+    {
+      "id": "habit-read",
+      "name": "Lettura",
+      "color": "#f25f5c"
+    },
+    {
+      "id": "habit-water",
+      "name": "Idratazione",
+      "color": "#70c1b3"
+    }
+  ],
+  "habitEntries": [
+    {
+      "id": "entry-1",
+      "habitId": "habit-walk",
+      "date": "2026-04-08"
+    },
+    {
+      "id": "entry-2",
+      "habitId": "habit-read",
+      "date": "2026-04-08"
+    },
+    {
+      "id": "entry-3",
+      "habitId": "habit-water",
+      "date": "2026-04-09"
+    },
+    {
+      "id": "entry-4",
+      "habitId": "habit-walk",
+      "date": "2026-04-09"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "expense-1",
+      "date": "2026-04-09",
+      "category": "Spesa",
+      "amount": 42.8,
+      "note": "Mercato rionale"
+    },
+    {
+      "id": "expense-2",
+      "date": "2026-04-07",
+      "category": "Trasporti",
+      "amount": 17.5,
+      "note": "Abbonamento treno"
+    },
+    {
+      "id": "expense-3",
+      "date": "2026-03-29",
+      "category": "Caffè",
+      "amount": 8.4,
+      "note": "Lavoro fuori casa"
+    },
+    {
+      "id": "expense-4",
+      "date": "2026-02-12",
+      "category": "Libri",
+      "amount": 24,
+      "note": "Saggio e romanzo"
+    },
+    {
+      "id": "expense-5",
+      "date": "2026-01-22",
+      "category": "Casa",
+      "amount": 66,
+      "note": "Detersivi"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "date": "2026-04-09",
+      "title": "Settimana 15",
+      "content": "Ridurre cene fuori e mantenere 20 minuti di lettura al giorno."
+    },
+    {
+      "id": "note-2",
+      "date": "2026-04-05",
+      "title": "Energia",
+      "content": "Dormo meglio quando spengo gli schermi entro le 23."
+    }
+  ]
+}
