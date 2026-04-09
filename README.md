@@ -1,2 +1,2 @@
 # life-log
-Ppannello di controllo personale per tracciare abitudini, spese o note
+Pannello di controllo personale per tracciare abitudini, spese o note
