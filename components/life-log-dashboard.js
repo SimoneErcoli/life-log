@@ -20,6 +20,7 @@ import {
 const WEEK_DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 const APP_BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
 const DEFAULT_FILE_NAME = "life-log.json";
+const EXPENSE_MONTHS_PER_PAGE = 5;
 
 function formatCurrency(value, currency) {
   return new Intl.NumberFormat("it-IT", {
@@ -71,6 +72,7 @@ export default function LifeLogDashboard() {
   const [calendarMonth, setCalendarMonth] = useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
+  const [expensePage, setExpensePage] = useState(0);
 
   const [expenseForm, setExpenseForm] = useState({
     date: today,
@@ -137,6 +139,7 @@ export default function LifeLogDashboard() {
       setData(normalized);
       setFileName(nextFileName || DEFAULT_FILE_NAME);
       setIsDirty(false);
+      setExpensePage(0);
       setStatus(message);
     });
   }
@@ -195,6 +198,7 @@ export default function LifeLogDashboard() {
     setData(blank);
     setFileName(DEFAULT_FILE_NAME);
     setIsDirty(true);
+    setExpensePage(0);
     setStatus("Archivio vuoto creato. Aggiungi dati e poi scarica il file.");
   }
 
@@ -374,7 +378,23 @@ export default function LifeLogDashboard() {
 
     return groups;
   }, []);
+  const expensePageCount = Math.max(1, Math.ceil(expenseGroups.length / EXPENSE_MONTHS_PER_PAGE));
+  const visibleExpenseGroups = expenseGroups.slice(
+    expensePage * EXPENSE_MONTHS_PER_PAGE,
+    expensePage * EXPENSE_MONTHS_PER_PAGE + EXPENSE_MONTHS_PER_PAGE,
+  );
+  const visibleMonthStart = expenseGroups.length === 0 ? 0 : expensePage * EXPENSE_MONTHS_PER_PAGE + 1;
+  const visibleMonthEnd = Math.min(
+    (expensePage + 1) * EXPENSE_MONTHS_PER_PAGE,
+    expenseGroups.length,
+  );
   const recentNotes = [...data.notes].sort(compareByDateDesc).slice(0, 5);
+
+  useEffect(() => {
+    if (expensePage > expensePageCount - 1) {
+      setExpensePage(Math.max(0, expensePageCount - 1));
+    }
+  }, [expensePage, expensePageCount]);
 
   return (
     <section className="dashboard-grid">
@@ -685,7 +705,35 @@ export default function LifeLogDashboard() {
             <p className="muted-text">Nessuna spesa registrata.</p>
           ) : (
             <div className="expense-months">
-              {expenseGroups.map((group) => (
+              {expensePageCount > 1 ? (
+                <div className="expense-pagination">
+                  <p className="expense-pagination-info">
+                    Mesi {visibleMonthStart}-{visibleMonthEnd} di {expenseGroups.length}
+                  </p>
+                  <div className="expense-pagination-actions">
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      onClick={() => setExpensePage((current) => Math.max(0, current - 1))}
+                      disabled={expensePage === 0}
+                    >
+                      Più recenti
+                    </button>
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      onClick={() =>
+                        setExpensePage((current) => Math.min(expensePageCount - 1, current + 1))
+                      }
+                      disabled={expensePage >= expensePageCount - 1}
+                    >
+                      Più vecchi
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {visibleExpenseGroups.map((group) => (
                 <section key={group.monthKey} className="expense-month-group">
                   <div className="expense-month-header">
                     <div>

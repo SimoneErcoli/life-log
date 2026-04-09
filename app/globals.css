@@ -276,6 +276,15 @@ code {
   border: 1px solid var(--line);
 }
 
+.ghost-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ghost-button:disabled:hover {
+  transform: none;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -613,6 +622,23 @@ th {
   gap: 14px;
 }
 
+.expense-pagination,
+.expense-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expense-pagination {
+  justify-content: space-between;
+}
+
+.expense-pagination-info {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .expense-month-group {
   padding: 16px;
   border: 1px solid var(--line);
@@ -709,6 +735,7 @@ th {
   .dropzone-actions,
   .status-row,
   .section-heading,
+  .expense-pagination,
   .expense-month-header,
   .habit-chip,
   .note-head {
