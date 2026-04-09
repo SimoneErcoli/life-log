@@ -1,16 +1,16 @@
 :root {
-  --bg: #f5efe2;
-  --panel: rgba(255, 251, 245, 0.86);
-  --panel-strong: #fff9ef;
-  --text: #1f1d1a;
-  --muted: #615d55;
-  --line: rgba(31, 29, 26, 0.12);
-  --line-strong: rgba(31, 29, 26, 0.22);
-  --accent: #b84c37;
-  --accent-dark: #7a2617;
-  --accent-soft: rgba(184, 76, 55, 0.12);
-  --highlight: #1d6f6d;
-  --shadow: 0 24px 60px rgba(48, 35, 26, 0.12);
+  --bg: #eaf7f8;
+  --panel: rgba(255, 255, 255, 0.82);
+  --panel-strong: #f8ffff;
+  --text: #15303a;
+  --muted: #5c7380;
+  --line: rgba(21, 48, 58, 0.12);
+  --line-strong: rgba(21, 48, 58, 0.22);
+  --accent: #ff6f61;
+  --accent-dark: #b93b4f;
+  --accent-soft: rgba(255, 111, 97, 0.14);
+  --highlight: #0f8b8d;
+  --shadow: 0 24px 60px rgba(20, 60, 74, 0.12);
   --radius: 28px;
   --radius-small: 16px;
 }
@@ -28,9 +28,9 @@ body {
   min-height: 100vh;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(255, 214, 153, 0.5), transparent 34%),
-    radial-gradient(circle at right center, rgba(89, 144, 138, 0.22), transparent 28%),
-    linear-gradient(180deg, #f7f1e6 0%, #efe5d5 48%, #e8ddca 100%);
+    radial-gradient(circle at top left, rgba(255, 214, 163, 0.42), transparent 34%),
+    radial-gradient(circle at right center, rgba(107, 210, 222, 0.24), transparent 30%),
+    linear-gradient(180deg, #f5fffe 0%, #edf9fb 50%, #e5f1f6 100%);
   font-family: "Avenir Next", "Segoe UI", sans-serif;
 }
 
@@ -64,7 +64,7 @@ code {
   padding: 28px;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) + 6px);
-  background: linear-gradient(135deg, rgba(255, 247, 235, 0.94), rgba(255, 252, 247, 0.7));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(241, 252, 255, 0.78));
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -75,7 +75,7 @@ code {
   inset: auto -60px -80px auto;
   width: 220px;
   height: 220px;
-  background: radial-gradient(circle, rgba(184, 76, 55, 0.18), transparent 68%);
+  background: radial-gradient(circle, rgba(255, 111, 97, 0.18), transparent 68%);
 }
 
 .eyebrow,
@@ -262,12 +262,12 @@ code {
 
 .primary-button {
   color: #fffdf8;
-  background: linear-gradient(135deg, var(--accent), #cf7351);
+  background: linear-gradient(135deg, var(--accent), #ff9368);
 }
 
 .accent-button {
   color: #f7f8f4;
-  background: linear-gradient(135deg, var(--highlight), #499693);
+  background: linear-gradient(135deg, var(--highlight), #3bb9c8);
 }
 
 .ghost-button {
@@ -331,14 +331,14 @@ code {
   padding: 10px;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(29, 111, 109, 0.05), rgba(184, 76, 55, 0.1));
+    linear-gradient(180deg, rgba(15, 139, 141, 0.06), rgba(255, 111, 97, 0.1));
 }
 
 .bar-fill {
   width: 100%;
   min-height: 10px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #e07a5f 0%, #9c3f30 100%);
+  background: linear-gradient(180deg, #64d7df 0%, #1493a4 100%);
 }
 
 .editor-grid {

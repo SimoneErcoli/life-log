@@ -1,11 +1,11 @@
 # Life-Log
 
-Dashboard personale in Next.js per gestire abitudini, spese e note usando un solo file locale `data.json`.
+Dashboard personale in Next.js per gestire abitudini, spese e note usando un solo file locale JSON.
 
 ## Flusso
 
 1. Apri il sito senza login.
-2. Trascina `data.json` nel browser oppure crea un archivio vuoto.
+2. Trascina il tuo file `.json` nel browser oppure crea un archivio vuoto.
 3. Visualizza KPI, grafico spese, tabella e calendario.
 4. Aggiungi nuove spese, abitudini completate o note.
 5. Scarica il JSON aggiornato e sovrascrivi il file precedente.

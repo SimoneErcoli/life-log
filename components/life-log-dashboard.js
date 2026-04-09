@@ -19,6 +19,7 @@ import {
 
 const WEEK_DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 const APP_BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
+const DEFAULT_FILE_NAME = "life-log.json";
 
 function formatCurrency(value, currency) {
   return new Intl.NumberFormat("it-IT", {
@@ -62,9 +63,9 @@ export default function LifeLogDashboard() {
   const fileInputRef = useRef(null);
 
   const [data, setData] = useState(() => createEmptyData());
-  const [fileName, setFileName] = useState("data.json");
+  const [fileName, setFileName] = useState(DEFAULT_FILE_NAME);
   const [dragActive, setDragActive] = useState(false);
-  const [status, setStatus] = useState("Trascina data.json oppure parti da un archivio vuoto.");
+  const [status, setStatus] = useState("Trascina un file JSON oppure parti da un archivio vuoto.");
   const [isDirty, setIsDirty] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(
@@ -134,7 +135,7 @@ export default function LifeLogDashboard() {
 
     startTransition(() => {
       setData(normalized);
-      setFileName(nextFileName || "data.json");
+      setFileName(nextFileName || DEFAULT_FILE_NAME);
       setIsDirty(false);
       setStatus(message);
     });
@@ -158,7 +159,7 @@ export default function LifeLogDashboard() {
     try {
       const response = await fetch(`${APP_BASE_PATH}/sample-data.json`);
       const payload = await response.json();
-      await applyImportedData(payload, "data.json", "Archivio demo caricato.");
+      await applyImportedData(payload, "sample-data.json", "Archivio demo caricato.");
     } catch {
       setStatus("Impossibile caricare il file demo.");
     }
@@ -180,19 +181,19 @@ export default function LifeLogDashboard() {
     const anchor = document.createElement("a");
 
     anchor.href = url;
-    anchor.download = fileName || "data.json";
+    anchor.download = fileName || DEFAULT_FILE_NAME;
     anchor.click();
     URL.revokeObjectURL(url);
 
     setData(snapshot);
     setIsDirty(false);
-    setStatus("Download avviato. Puoi sovrascrivere il vecchio data.json.");
+    setStatus("Download avviato. Puoi sostituire il file JSON originale.");
   }
 
   function handleCreateBlank() {
     const blank = createEmptyData();
     setData(blank);
-    setFileName("data.json");
+    setFileName(DEFAULT_FILE_NAME);
     setIsDirty(true);
     setStatus("Archivio vuoto creato. Aggiungi dati e poi scarica il file.");
   }
@@ -415,7 +416,7 @@ export default function LifeLogDashboard() {
               className="primary-button"
               onClick={() => fileInputRef.current?.click()}
             >
-              Importa JSON
+              Importa file JSON
             </button>
             <button type="button" className="ghost-button" onClick={loadSample}>
               Carica demo
@@ -424,7 +425,7 @@ export default function LifeLogDashboard() {
               Nuovo archivio
             </button>
             <button type="button" className="accent-button" onClick={handleDownload}>
-              Scarica data.json
+              Scarica file JSON
             </button>
           </div>
 
@@ -783,8 +784,8 @@ export default function LifeLogDashboard() {
           <div className="hint-card">
             <p className="hint-title">Come si usa</p>
             <p>
-              1. Scegli un'abitudine. 2. Clicca un giorno per segnare fatto o annullare il
-              completamento.
+              1. Seleziona un'abitudine. 2. Clicca su un giorno del calendario per
+              registrare o rimuovere il completamento.
             </p>
             {selectedHabit ? (
               <>

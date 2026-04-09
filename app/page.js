@@ -6,12 +6,13 @@ export default function HomePage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Life-Log Personal Dashboard</p>
-          <h1>Il tuo archivio vive in un solo file.</h1>
+          <h1>Abitudini, spese e note sotto il tuo controllo.</h1>
           <p className="hero-text">
-            Nessun account, nessun backend, nessun lock-in. Trascina
-            <code> data.json </code>
-            nel browser, aggiorna spese, abitudini e note, poi scarica la nuova
-            versione del file.
+            Nessuna registrazione, nessun server, nessun vincolo a una piattaforma.
+            Importa un
+            <code> file JSON </code>
+            nel browser, aggiorna il tuo diario personale e scarica subito la
+            versione aggiornata con tutte le modifiche.
           </p>
         </div>
 
