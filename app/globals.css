@@ -622,18 +622,18 @@ th {
   gap: 14px;
 }
 
-.expense-pagination,
-.expense-pagination-actions {
+.archive-pagination,
+.archive-pagination-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.expense-pagination {
+.archive-pagination {
   justify-content: space-between;
 }
 
-.expense-pagination-info {
+.archive-pagination-info {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
@@ -735,7 +735,7 @@ th {
   .dropzone-actions,
   .status-row,
   .section-heading,
-  .expense-pagination,
+  .archive-pagination,
   .expense-month-header,
   .habit-chip,
   .note-head {

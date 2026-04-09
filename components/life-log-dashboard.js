@@ -21,6 +21,7 @@ const WEEK_DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 const APP_BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
 const DEFAULT_FILE_NAME = "life-log.json";
 const EXPENSE_MONTHS_PER_PAGE = 5;
+const NOTES_PER_PAGE = 3;
 
 function formatCurrency(value, currency) {
   return new Intl.NumberFormat("it-IT", {
@@ -73,6 +74,7 @@ export default function LifeLogDashboard() {
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
   const [expensePage, setExpensePage] = useState(0);
+  const [notePage, setNotePage] = useState(0);
 
   const [expenseForm, setExpenseForm] = useState({
     date: today,
@@ -140,6 +142,7 @@ export default function LifeLogDashboard() {
       setFileName(nextFileName || DEFAULT_FILE_NAME);
       setIsDirty(false);
       setExpensePage(0);
+      setNotePage(0);
       setStatus(message);
     });
   }
@@ -199,6 +202,7 @@ export default function LifeLogDashboard() {
     setFileName(DEFAULT_FILE_NAME);
     setIsDirty(true);
     setExpensePage(0);
+    setNotePage(0);
     setStatus("Archivio vuoto creato. Aggiungi dati e poi scarica il file.");
   }
 
@@ -291,6 +295,7 @@ export default function LifeLogDashboard() {
       }),
       "Nota aggiunta.",
     );
+    setNotePage(0);
 
     setNoteForm({
       date: today,
@@ -388,13 +393,26 @@ export default function LifeLogDashboard() {
     (expensePage + 1) * EXPENSE_MONTHS_PER_PAGE,
     expenseGroups.length,
   );
-  const recentNotes = [...data.notes].sort(compareByDateDesc).slice(0, 5);
+  const allNotes = [...data.notes].sort(compareByDateDesc);
+  const notePageCount = Math.max(1, Math.ceil(allNotes.length / NOTES_PER_PAGE));
+  const visibleNotes = allNotes.slice(
+    notePage * NOTES_PER_PAGE,
+    notePage * NOTES_PER_PAGE + NOTES_PER_PAGE,
+  );
+  const visibleNoteStart = allNotes.length === 0 ? 0 : notePage * NOTES_PER_PAGE + 1;
+  const visibleNoteEnd = Math.min((notePage + 1) * NOTES_PER_PAGE, allNotes.length);
 
   useEffect(() => {
     if (expensePage > expensePageCount - 1) {
       setExpensePage(Math.max(0, expensePageCount - 1));
     }
   }, [expensePage, expensePageCount]);
+
+  useEffect(() => {
+    if (notePage > notePageCount - 1) {
+      setNotePage(Math.max(0, notePageCount - 1));
+    }
+  }, [notePage, notePageCount]);
 
   return (
     <section className="dashboard-grid">
@@ -706,11 +724,11 @@ export default function LifeLogDashboard() {
           ) : (
             <div className="expense-months">
               {expensePageCount > 1 ? (
-                <div className="expense-pagination">
-                  <p className="expense-pagination-info">
+                <div className="archive-pagination">
+                  <p className="archive-pagination-info">
                     Mesi {visibleMonthStart}-{visibleMonthEnd} di {expenseGroups.length}
                   </p>
-                  <div className="expense-pagination-actions">
+                  <div className="archive-pagination-actions">
                     <button
                       type="button"
                       className="ghost-button"
@@ -1023,33 +1041,63 @@ export default function LifeLogDashboard() {
             </div>
           </div>
           <div className="notes-stack">
-            {recentNotes.length === 0 ? (
+            {allNotes.length === 0 ? (
               <p className="muted-text">Ancora nessuna nota salvata.</p>
             ) : (
-              recentNotes.map((note) => (
-                <article key={note.id} className="note-card">
-                  <div className="note-head">
-                    <strong>{note.title}</strong>
-                    <button
-                      type="button"
-                      className="delete-button"
-                      onClick={() =>
-                        commitData(
-                          (current) => ({
-                            ...current,
-                            notes: current.notes.filter((item) => item.id !== note.id),
-                          }),
-                          "Nota rimossa.",
-                        )
-                      }
-                    >
-                      Elimina
-                    </button>
+              <>
+                {notePageCount > 1 ? (
+                  <div className="archive-pagination">
+                    <p className="archive-pagination-info">
+                      Note {visibleNoteStart}-{visibleNoteEnd} di {allNotes.length}
+                    </p>
+                    <div className="archive-pagination-actions">
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        onClick={() => setNotePage((current) => Math.max(0, current - 1))}
+                        disabled={notePage === 0}
+                      >
+                        Più recenti
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        onClick={() =>
+                          setNotePage((current) => Math.min(notePageCount - 1, current + 1))
+                        }
+                        disabled={notePage >= notePageCount - 1}
+                      >
+                        Più vecchie
+                      </button>
+                    </div>
                   </div>
-                  <span>{formatShortDate(note.date)}</span>
-                  <p>{note.content || "Nessun contenuto."}</p>
-                </article>
-              ))
+                ) : null}
+
+                {visibleNotes.map((note) => (
+                  <article key={note.id} className="note-card">
+                    <div className="note-head">
+                      <strong>{note.title}</strong>
+                      <button
+                        type="button"
+                        className="delete-button"
+                        onClick={() =>
+                          commitData(
+                            (current) => ({
+                              ...current,
+                              notes: current.notes.filter((item) => item.id !== note.id),
+                            }),
+                            "Nota rimossa.",
+                          )
+                        }
+                      >
+                        Elimina
+                      </button>
+                    </div>
+                    <span>{formatShortDate(note.date)}</span>
+                    <p>{note.content || "Nessun contenuto."}</p>
+                  </article>
+                ))}
+              </>
             )}
           </div>
         </div>
