@@ -379,6 +379,10 @@ code {
   line-height: 1.6;
 }
 
+.section-help-last {
+  margin-bottom: 0;
+}
+
 .color-row {
   flex-wrap: wrap;
 }
@@ -396,29 +400,49 @@ code {
 
 .habit-list {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin-top: 18px;
 }
 
+.habit-list-compact {
+  margin-top: 0;
+}
+
 .habit-chip {
-  justify-content: space-between;
-  padding: 12px 14px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.habit-chip.is-complete {
+  border-color: rgba(29, 111, 109, 0.25);
+  background: rgba(29, 111, 109, 0.08);
 }
 
 .habit-main {
-  display: inline-flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: flex-start;
   gap: 10px;
 }
 
 .habit-dot {
   width: 12px;
   height: 12px;
+  margin-top: 4px;
   border-radius: 999px;
   flex: 0 0 auto;
+}
+
+.habit-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .habit-meta strong {
@@ -431,17 +455,31 @@ code {
   font-size: 0.86rem;
 }
 
+.habit-state {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(31, 29, 26, 0.06);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.habit-state.is-complete {
+  background: rgba(29, 111, 109, 0.14);
+  color: var(--highlight);
+}
+
 .habit-stats,
 .hint-stats {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .habit-stats span,
 .hint-stats span {
-  padding: 6px 10px;
+  padding: 7px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.7);
@@ -458,6 +496,7 @@ code {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: flex-start;
 }
 
 .delete-button {

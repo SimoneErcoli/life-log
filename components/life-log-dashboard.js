@@ -610,80 +610,9 @@ export default function LifeLogDashboard() {
             <button type="submit" className="primary-button">
               Crea abitudine
             </button>
-            <div className="habit-list">
-              {data.habits.length === 0 ? (
-                <p className="muted-text">Ancora nessuna abitudine configurata.</p>
-              ) : (
-                <>
-                  <p className="section-help">
-                    Usa <strong>Segna oggi</strong> per il giorno corrente. Per segnare altri
-                    giorni usa il calendario qui a destra.
-                  </p>
-                  {data.habits.map((habit) => {
-                    const isDoneToday = todayHabitIds.has(habit.id);
-                    const stats = habitStats[habit.id];
-
-                    return (
-                      <div key={habit.id} className="habit-chip">
-                        <div className="habit-main">
-                          <span className="habit-dot" style={{ backgroundColor: habit.color }} />
-                          <div className="habit-meta">
-                            <strong>{habit.name}</strong>
-                            <p>{isDoneToday ? "Segnata per oggi" : "Non segnata oggi"}</p>
-                            <div className="habit-stats">
-                              <span>
-                                Serie attuale: <strong>{formatStreakLabel(stats.currentStreak)}</strong>
-                              </span>
-                              <span>
-                                Record: <strong>{formatStreakLabel(stats.longestStreak)}</strong>
-                              </span>
-                              <span>
-                                Totale: <strong>{stats.totalCompletions}</strong>
-                              </span>
-                              <span>
-                                Ultima volta:{" "}
-                                <strong>
-                                  {stats.lastCompletedAt
-                                    ? formatShortDate(stats.lastCompletedAt)
-                                    : "mai"}
-                                </strong>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="habit-actions">
-                          <button
-                            type="button"
-                            className="ghost-button"
-                            onClick={() => toggleHabitForDate(habit.id, today)}
-                          >
-                            {isDoneToday ? "Rimuovi oggi" : "Segna oggi"}
-                          </button>
-                          <button
-                            type="button"
-                            className="delete-button"
-                            onClick={() =>
-                              commitData(
-                                (current) => ({
-                                  ...current,
-                                  habits: current.habits.filter((item) => item.id !== habit.id),
-                                  habitEntries: current.habitEntries.filter(
-                                    (entry) => entry.habitId !== habit.id,
-                                  ),
-                                }),
-                                "Abitudine rimossa.",
-                              )
-                            }
-                          >
-                            Elimina
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-            </div>
+            <p className="section-help section-help-last">
+              I completamenti giornalieri li trovi sotto il calendario, nella colonna destra.
+            </p>
           </form>
 
           <form className="panel form-panel" onSubmit={handleNoteSubmit}>
@@ -942,6 +871,99 @@ export default function LifeLogDashboard() {
               ),
             )}
           </div>
+        </div>
+
+        <div className="panel">
+          <div className="section-heading">
+            <div>
+              <p className="panel-kicker">Oggi</p>
+              <h2>Completamenti giornalieri</h2>
+            </div>
+          </div>
+          {data.habits.length === 0 ? (
+            <p className="muted-text">Crea almeno un'abitudine per iniziare a segnare i giorni.</p>
+          ) : (
+            <>
+              <p className="section-help">
+                Usa <strong>Segna oggi</strong> per il giorno corrente. Per segnare altri giorni
+                usa il calendario qui sopra.
+              </p>
+              <div className="habit-list habit-list-compact">
+                {data.habits.map((habit) => {
+                  const isDoneToday = todayHabitIds.has(habit.id);
+                  const stats = habitStats[habit.id];
+
+                  return (
+                    <article
+                      key={habit.id}
+                      className={`habit-chip ${isDoneToday ? "is-complete" : ""}`}
+                    >
+                      <div className="habit-main">
+                        <span className="habit-dot" style={{ backgroundColor: habit.color }} />
+                        <div className="habit-meta">
+                          <div className="habit-title-row">
+                            <strong>{habit.name}</strong>
+                            <span className={`habit-state ${isDoneToday ? "is-complete" : ""}`}>
+                              {isDoneToday ? "Completata oggi" : "Da segnare oggi"}
+                            </span>
+                          </div>
+                          <p>Tracker giornaliero</p>
+                        </div>
+                      </div>
+
+                      <div className="habit-stats">
+                        <span>
+                          Serie attuale: <strong>{formatStreakLabel(stats.currentStreak)}</strong>
+                        </span>
+                        <span>
+                          Record: <strong>{formatStreakLabel(stats.longestStreak)}</strong>
+                        </span>
+                        <span>
+                          Totale: <strong>{stats.totalCompletions}</strong>
+                        </span>
+                        <span>
+                          Ultima volta:{" "}
+                          <strong>
+                            {stats.lastCompletedAt
+                              ? formatShortDate(stats.lastCompletedAt)
+                              : "mai"}
+                          </strong>
+                        </span>
+                      </div>
+
+                      <div className="habit-actions">
+                        <button
+                          type="button"
+                          className="ghost-button"
+                          onClick={() => toggleHabitForDate(habit.id, today)}
+                        >
+                          {isDoneToday ? "Rimuovi oggi" : "Segna oggi"}
+                        </button>
+                        <button
+                          type="button"
+                          className="delete-button"
+                          onClick={() =>
+                            commitData(
+                              (current) => ({
+                                ...current,
+                                habits: current.habits.filter((item) => item.id !== habit.id),
+                                habitEntries: current.habitEntries.filter(
+                                  (entry) => entry.habitId !== habit.id,
+                                ),
+                              }),
+                              "Abitudine rimossa.",
+                            )
+                          }
+                        >
+                          Elimina
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="panel">
