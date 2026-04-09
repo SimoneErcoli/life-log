@@ -373,6 +373,12 @@ code {
   resize: vertical;
 }
 
+.section-help {
+  margin: -2px 0 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .color-row {
   flex-wrap: wrap;
 }
@@ -402,27 +408,85 @@ code {
   background: rgba(255, 255, 255, 0.55);
 }
 
-.habit-toggle {
+.habit-main {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--text);
-  font-weight: 700;
 }
 
-.habit-toggle span {
+.habit-dot {
   width: 12px;
   height: 12px;
   border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.habit-meta strong {
+  display: block;
+}
+
+.habit-meta p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.habit-stats,
+.hint-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.habit-stats span,
+.hint-stats span {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.habit-stats strong,
+.hint-stats strong {
+  color: var(--text);
+}
+
+.habit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .delete-button {
   padding: 8px 12px;
   background: rgba(31, 29, 26, 0.06);
   color: var(--text);
+}
+
+.hint-card {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(29, 111, 109, 0.08);
+}
+
+.hint-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.hint-card p + p {
+  margin-top: 6px;
+}
+
+.hint-title {
+  color: var(--text) !important;
+  font-weight: 700;
 }
 
 .calendar-grid {
@@ -505,6 +569,47 @@ th {
   color: var(--muted);
 }
 
+.expense-months {
+  display: grid;
+  gap: 14px;
+}
+
+.expense-month-group {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.expense-month-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.expense-month-header strong {
+  display: block;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+.expense-month-meta {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.expense-month-total {
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+
+.expense-month-group tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .notes-stack {
   display: grid;
   gap: 12px;
@@ -565,6 +670,7 @@ th {
   .dropzone-actions,
   .status-row,
   .section-heading,
+  .expense-month-header,
   .habit-chip,
   .note-head {
     align-items: flex-start;

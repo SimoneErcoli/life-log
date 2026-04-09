@@ -17,6 +17,16 @@ npm install
 npm run dev
 ```
 
+## Deploy con sottopercorso
+
+Se pubblichi l'app sotto un sottopercorso, per esempio `/life-log`, imposta la variabile al build time:
+
+```bash
+NEXT_PUBLIC_BASE_PATH=/life-log npm run build
+```
+
+In locale o su dominio root non impostarla.
+
 ## Schema JSON
 
 ```json

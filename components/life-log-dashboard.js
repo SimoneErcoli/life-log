@@ -7,6 +7,7 @@ import {
   createEmptyData,
   createId,
   getCalendarCells,
+  getHabitStats,
   getMonthKey,
   getMonthName,
   getMonthSeries,
@@ -17,6 +18,7 @@ import {
 } from "../lib/life-log";
 
 const WEEK_DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+const APP_BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
 
 function formatCurrency(value, currency) {
   return new Intl.NumberFormat("it-IT", {
@@ -31,6 +33,17 @@ function formatShortDate(value) {
     day: "2-digit",
     month: "short",
   });
+}
+
+function formatMonthLabel(monthKey) {
+  return parseDateValue(`${monthKey}-01`).toLocaleDateString("it-IT", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatStreakLabel(value) {
+  return `${value} ${value === 1 ? "giorno" : "giorni"}`;
 }
 
 function createLookup(entries) {
@@ -143,7 +156,7 @@ export default function LifeLogDashboard() {
 
   async function loadSample() {
     try {
-      const response = await fetch("/sample-data.json");
+      const response = await fetch(`${APP_BASE_PATH}/sample-data.json`);
       const payload = await response.json();
       await applyImportedData(payload, "data.json", "Archivio demo caricato.");
     } catch {
@@ -322,13 +335,44 @@ export default function LifeLogDashboard() {
   }));
   const maxExpense = Math.max(...expenseSeries.map((month) => month.total), 1);
   const habitsByDate = createLookup(data.habitEntries);
+  const todayHabitIds = new Set(
+    data.habitEntries.filter((entry) => entry.date === today).map((entry) => entry.habitId),
+  );
+  const habitStats = data.habits.reduce((accumulator, habit) => {
+    accumulator[habit.id] = getHabitStats(data.habitEntries, habit.id, today);
+    return accumulator;
+  }, {});
   const calendarCells = getCalendarCells(calendarMonth);
   const selectedHabitEntries = new Set(
     data.habitEntries
       .filter((entry) => entry.habitId === selectedHabitId)
       .map((entry) => entry.date),
   );
-  const recentExpenses = [...data.expenses].sort(compareByDateDesc).slice(0, 8);
+  const selectedHabit = data.habits.find((habit) => habit.id === selectedHabitId) || null;
+  const selectedHabitStats = selectedHabit ? habitStats[selectedHabit.id] : null;
+  const selectedHabitMonthHits = data.habitEntries.filter(
+    (entry) => entry.habitId === selectedHabitId && getMonthKey(entry.date) === currentMonthKey,
+  ).length;
+  const allExpenses = [...data.expenses].sort(compareByDateDesc);
+  const expenseGroups = allExpenses.reduce((groups, expense) => {
+    const monthKey = getMonthKey(expense.date);
+    const existingGroup = groups[groups.length - 1];
+
+    if (existingGroup && existingGroup.monthKey === monthKey) {
+      existingGroup.total += expense.amount;
+      existingGroup.items.push(expense);
+      return groups;
+    }
+
+    groups.push({
+      monthKey,
+      label: formatMonthLabel(monthKey),
+      total: expense.amount,
+      items: [expense],
+    });
+
+    return groups;
+  }, []);
   const recentNotes = [...data.notes].sort(compareByDateDesc).slice(0, 5);
 
   return (
@@ -525,6 +569,10 @@ export default function LifeLogDashboard() {
                 <h2>Nuova abitudine</h2>
               </div>
             </div>
+            <p className="section-help">
+              Le abitudini sono routine da segnare come completate giorno per giorno.
+              Esempio: lettura, camminata, acqua.
+            </p>
             <label>
               Nome
               <input
@@ -536,7 +584,7 @@ export default function LifeLogDashboard() {
                     name: event.target.value,
                   }))
                 }
-                placeholder="Camminata, lettura, acqua..."
+                placeholder="Es. Lettura, camminata, stretching..."
               />
             </label>
             <label>
@@ -560,42 +608,80 @@ export default function LifeLogDashboard() {
               </div>
             </label>
             <button type="submit" className="primary-button">
-              Aggiungi abitudine
+              Crea abitudine
             </button>
             <div className="habit-list">
               {data.habits.length === 0 ? (
                 <p className="muted-text">Ancora nessuna abitudine configurata.</p>
               ) : (
-                data.habits.map((habit) => (
-                  <div key={habit.id} className="habit-chip">
-                    <button
-                      type="button"
-                      className="habit-toggle"
-                      onClick={() => toggleHabitForDate(habit.id, today)}
-                    >
-                      <span style={{ backgroundColor: habit.color }} />
-                      {habit.name}
-                    </button>
-                    <button
-                      type="button"
-                      className="delete-button"
-                      onClick={() =>
-                        commitData(
-                          (current) => ({
-                            ...current,
-                            habits: current.habits.filter((item) => item.id !== habit.id),
-                            habitEntries: current.habitEntries.filter(
-                              (entry) => entry.habitId !== habit.id,
-                            ),
-                          }),
-                          "Abitudine rimossa.",
-                        )
-                      }
-                    >
-                      Elimina
-                    </button>
-                  </div>
-                ))
+                <>
+                  <p className="section-help">
+                    Usa <strong>Segna oggi</strong> per il giorno corrente. Per segnare altri
+                    giorni usa il calendario qui a destra.
+                  </p>
+                  {data.habits.map((habit) => {
+                    const isDoneToday = todayHabitIds.has(habit.id);
+                    const stats = habitStats[habit.id];
+
+                    return (
+                      <div key={habit.id} className="habit-chip">
+                        <div className="habit-main">
+                          <span className="habit-dot" style={{ backgroundColor: habit.color }} />
+                          <div className="habit-meta">
+                            <strong>{habit.name}</strong>
+                            <p>{isDoneToday ? "Segnata per oggi" : "Non segnata oggi"}</p>
+                            <div className="habit-stats">
+                              <span>
+                                Serie attuale: <strong>{formatStreakLabel(stats.currentStreak)}</strong>
+                              </span>
+                              <span>
+                                Record: <strong>{formatStreakLabel(stats.longestStreak)}</strong>
+                              </span>
+                              <span>
+                                Totale: <strong>{stats.totalCompletions}</strong>
+                              </span>
+                              <span>
+                                Ultima volta:{" "}
+                                <strong>
+                                  {stats.lastCompletedAt
+                                    ? formatShortDate(stats.lastCompletedAt)
+                                    : "mai"}
+                                </strong>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="habit-actions">
+                          <button
+                            type="button"
+                            className="ghost-button"
+                            onClick={() => toggleHabitForDate(habit.id, today)}
+                          >
+                            {isDoneToday ? "Rimuovi oggi" : "Segna oggi"}
+                          </button>
+                          <button
+                            type="button"
+                            className="delete-button"
+                            onClick={() =>
+                              commitData(
+                                (current) => ({
+                                  ...current,
+                                  habits: current.habits.filter((item) => item.id !== habit.id),
+                                  habitEntries: current.habitEntries.filter(
+                                    (entry) => entry.habitId !== habit.id,
+                                  ),
+                                }),
+                                "Abitudine rimossa.",
+                              )
+                            }
+                          >
+                            Elimina
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
               )}
             </div>
           </form>
@@ -653,6 +739,83 @@ export default function LifeLogDashboard() {
             </button>
           </form>
         </div>
+
+        <div className="panel">
+          <div className="section-heading">
+            <div>
+              <p className="panel-kicker">Archivio</p>
+              <h2>Spese per mese</h2>
+            </div>
+            <p className="muted-text">
+              Tutte le spese vengono raggruppate per mese, con totale e dettaglio completo.
+            </p>
+          </div>
+
+          {expenseGroups.length === 0 ? (
+            <p className="muted-text">Nessuna spesa registrata.</p>
+          ) : (
+            <div className="expense-months">
+              {expenseGroups.map((group) => (
+                <section key={group.monthKey} className="expense-month-group">
+                  <div className="expense-month-header">
+                    <div>
+                      <strong>{group.label}</strong>
+                      <p className="expense-month-meta">
+                        {group.items.length} {group.items.length === 1 ? "spesa" : "spese"}
+                      </p>
+                    </div>
+                    <span className="expense-month-total">
+                      {formatCurrency(group.total, currency)}
+                    </span>
+                  </div>
+
+                  <div className="table-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Categoria</th>
+                          <th>Nota</th>
+                          <th>Importo</th>
+                          <th />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {group.items.map((expense) => (
+                          <tr key={expense.id}>
+                            <td>{formatShortDate(expense.date)}</td>
+                            <td>{expense.category}</td>
+                            <td>{expense.note || "—"}</td>
+                            <td>{formatCurrency(expense.amount, currency)}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="delete-button"
+                                onClick={() =>
+                                  commitData(
+                                    (current) => ({
+                                      ...current,
+                                      expenses: current.expenses.filter(
+                                        (item) => item.id !== expense.id,
+                                      ),
+                                    }),
+                                    "Spesa rimossa.",
+                                  )
+                                }
+                              >
+                                Elimina
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <aside className="dashboard-side">
@@ -688,13 +851,50 @@ export default function LifeLogDashboard() {
             </div>
           </div>
 
+          <div className="hint-card">
+            <p className="hint-title">Come si usa</p>
+            <p>
+              1. Scegli un'abitudine. 2. Clicca un giorno per segnare fatto o annullare il
+              completamento.
+            </p>
+            {selectedHabit ? (
+              <>
+                <p>
+                  Attiva ora: <strong>{selectedHabit.name}</strong>. Completamenti nel mese:
+                  {" "}
+                  <strong>{selectedHabitMonthHits}</strong>
+                </p>
+                <div className="hint-stats">
+                  <span>
+                    Serie attuale:{" "}
+                    <strong>{formatStreakLabel(selectedHabitStats?.currentStreak || 0)}</strong>
+                  </span>
+                  <span>
+                    Record:{" "}
+                    <strong>{formatStreakLabel(selectedHabitStats?.longestStreak || 0)}</strong>
+                  </span>
+                  <span>
+                    Ultima volta:{" "}
+                    <strong>
+                      {selectedHabitStats?.lastCompletedAt
+                        ? formatShortDate(selectedHabitStats.lastCompletedAt)
+                        : "mai"}
+                    </strong>
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p>Seleziona un'abitudine per attivare il calendario.</p>
+            )}
+          </div>
+
           <label className="calendar-select">
-            Abitudine da segnare
+            Abitudine attiva nel calendario
             <select
               value={selectedHabitId}
               onChange={(event) => setSelectedHabitId(event.target.value)}
             >
-              <option value="">Seleziona</option>
+              <option value="">Seleziona un'abitudine</option>
               {data.habits.map((habit) => (
                 <option key={habit.id} value={habit.id}>
                   {habit.name}
@@ -741,65 +941,6 @@ export default function LifeLogDashboard() {
                 <div key={`empty-${index}`} className="calendar-empty" />
               ),
             )}
-          </div>
-        </div>
-
-        <div className="panel">
-          <div className="section-heading">
-            <div>
-              <p className="panel-kicker">Tabella</p>
-              <h2>Ultime spese</h2>
-            </div>
-          </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Categoria</th>
-                  <th>Nota</th>
-                  <th>Importo</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {recentExpenses.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="empty-cell">
-                      Nessuna spesa registrata.
-                    </td>
-                  </tr>
-                ) : (
-                  recentExpenses.map((expense) => (
-                    <tr key={expense.id}>
-                      <td>{formatShortDate(expense.date)}</td>
-                      <td>{expense.category}</td>
-                      <td>{expense.note || "—"}</td>
-                      <td>{formatCurrency(expense.amount, currency)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="delete-button"
-                          onClick={() =>
-                            commitData(
-                              (current) => ({
-                                ...current,
-                                expenses: current.expenses.filter(
-                                  (item) => item.id !== expense.id,
-                                ),
-                              }),
-                              "Spesa rimossa.",
-                            )
-                          }
-                        >
-                          Elimina
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
           </div>
         </div>
 
