@@ -1,3 +1,3 @@
 # life-log
-Pannello di controllo personale per tracciare abitudini, spese o note
+Personal dashboard for tracking habits, expenses, or notes
 
